@@ -32,82 +32,84 @@ class _AddPostScreenState extends State<PostScreen> {
           icon: Icon(Icons.arrow_back_ios_new_outlined)),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            GestureDetector(
-              onTap: () async {
-                await _showImageSourceDialog();
-              },
-              child: Container(
-                width: 200,
-                height: 200,
-                decoration: BoxDecoration(
-                    color: Colors.lightBlueAccent,
-                    borderRadius: BorderRadius.circular(90)),
-                child: _image != null
-                    ? Image.file(File(_image!.path))
-                    : Icon(Icons.camera_alt),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              GestureDetector(
+                onTap: () async {
+                  await _showImageSourceDialog();
+                },
+                child: Container(
+                  width: 200,
+                  height: 200,
+                  decoration: BoxDecoration(
+                      color: Colors.lightBlueAccent,
+                      borderRadius: BorderRadius.circular(90)),
+                  child: _image != null
+                      ? Image.file(File(_image!.path))
+                      : Icon(Icons.camera_alt),
+                ),
               ),
-            ),
-            SizedBox(height: 16),
-            TextField(
-              controller: _TextController,
-              decoration: InputDecoration(
-                hintText: 'Input Deskripsi',
-                border: OutlineInputBorder(),
+              SizedBox(height: 16),
+              TextField(
+                controller: _TextController,
+                decoration: InputDecoration(
+                  hintText: 'Input Deskripsi',
+                  border: OutlineInputBorder(),
+                ),
               ),
-            ),
-            SizedBox(height: 16),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey,
-                  textStyle: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                  )),
-              onPressed: () async {
-                if (_image == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Please select an image')),
-                  );
-                  return;
-                }
+              SizedBox(height: 16),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey,
+                    textStyle: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                    )),
+                onPressed: () async {
+                  if (_image == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Please select an image')),
+                    );
+                    return;
+                  }
 
-                Reference referenceRoot = FirebaseStorage.instance.ref();
-                Reference referenceDirImages = referenceRoot.child("images");
-                Reference referenceImagesToUpload =
-                    referenceDirImages.child(_image!.path.split("/").last);
+                  Reference referenceRoot = FirebaseStorage.instance.ref();
+                  Reference referenceDirImages = referenceRoot.child("images");
+                  Reference referenceImagesToUpload =
+                      referenceDirImages.child(_image!.path.split("/").last);
 
-                try {
-                  final uploadTask =
-                      await referenceImagesToUpload.putFile(File(_image!.path));
-                  final downloadUrl = await uploadTask.ref.getDownloadURL();
+                  try {
+                    final uploadTask = await referenceImagesToUpload
+                        .putFile(File(_image!.path));
+                    final downloadUrl = await uploadTask.ref.getDownloadURL();
 
-                  // Add Firebase Cloud Firestore functionality here
-                  final CollectionReference posts =
-                      FirebaseFirestore.instance.collection('test');
-                  await posts.add({
-                    'deskripsi': _TextController.text,
-                    'image_url': downloadUrl,
-                    'timestamp': Timestamp.now(),
-                    'user_email': _auth.currentUser?.email,
-                  });
+                    // Add Firebase Cloud Firestore functionality here
+                    final CollectionReference posts =
+                        FirebaseFirestore.instance.collection('test');
+                    await posts.add({
+                      'deskripsi': _TextController.text,
+                      'image_url': downloadUrl,
+                      'timestamp': Timestamp.now(),
+                      'user_email': _auth.currentUser?.email,
+                    });
 
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Image uploaded successfully')),
-                  );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Image uploaded successfully')),
+                    );
 
-                  Navigator.of(context).pushReplacement(MaterialPageRoute(
-                      builder: (context) => const HomeScreen()));
-                } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error uploading image: $e')),
-                  );
-                }
-              },
-              child: Text('Post'),
-            ),
-          ],
+                    Navigator.of(context).pushReplacement(MaterialPageRoute(
+                        builder: (context) => const HomeScreen()));
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error uploading image: $e')),
+                    );
+                  }
+                },
+                child: Text('Post'),
+              ),
+            ],
+          ),
         ),
       ),
     );
