@@ -43,8 +43,8 @@ class _AddPostScreenState extends State<PostScreen> {
                   width: 200,
                   height: 200,
                   decoration: BoxDecoration(
-                      color: Colors.lightBlueAccent,
-                      borderRadius: BorderRadius.circular(90)),
+                      color: Colors.grey,
+                      borderRadius: BorderRadius.horizontal()),
                   child: _image != null
                       ? Image.file(File(_image!.path))
                       : Icon(Icons.camera_alt),
@@ -106,7 +106,7 @@ class _AddPostScreenState extends State<PostScreen> {
                     );
                   }
                 },
-                child: Text('Post'),
+                child: Text('Post', style: TextStyle(color: Colors.black),),
               ),
             ],
           ),
